@@ -24,17 +24,10 @@ internal class ReasoningTimer(
         sawReasoning = true
     }
 
-    /** Freezes the clock at the first content chunk and returns the duration. */
-    fun onContent(): Long? {
+    /** Freezes the clock on the first call and returns the duration. */
+    fun finish(): Long? {
         if (startedAt <= 0L) return null
         if (finishedAt <= 0L) finishedAt = clock()
         return if (sawReasoning) (finishedAt - startedAt).coerceAtLeast(0L) else null
-    }
-
-    /** Final duration, or null when the reply never streamed any reasoning. */
-    fun finish(): Long? {
-        if (!sawReasoning || startedAt <= 0L) return null
-        val end = if (finishedAt >= startedAt) finishedAt else clock()
-        return (end - startedAt).coerceAtLeast(0L)
     }
 }

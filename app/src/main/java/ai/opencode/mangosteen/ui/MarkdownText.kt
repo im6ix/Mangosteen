@@ -108,8 +108,6 @@ private val INLINE = Regex(
         "|<((?:https?://|mailto:)[^>\\s]+)>"
 )
 
-private fun indentWidth(prefix: String): Int = prefix.length
-
 private fun levelFor(indent: Int): Int = (indent / 2).coerceIn(0, 6)
 
 private fun isBlockStart(line: String): Boolean =
@@ -251,14 +249,14 @@ private fun parseList(
         val bullet = BULLET.matchEntire(line)
         val numbered = NUMBERED.matchEntire(line)
         if (bullet != null) {
-            val level = levelFor(indentWidth(bullet.groupValues[1]))
+            val level = levelFor(bullet.groupValues[1].length)
             val body = bullet.groupValues[3].trim()
             items.add(RawListItem(level, bullet.groupValues[2], null, StringBuilder(body)))
             i++
             continue
         }
         if (numbered != null) {
-            val level = levelFor(indentWidth(numbered.groupValues[1]))
+            val level = levelFor(numbered.groupValues[1].length)
             val body = numbered.groupValues[3].trim()
             val number = numbered.groupValues[2].toIntOrNull() ?: 1
             items.add(RawListItem(level, null, number, StringBuilder(body)))
@@ -299,98 +297,46 @@ private fun annotate(text: String, codeBg: Color, link: Color): AnnotatedString 
         if (match.range.first > cursor) append(text, cursor, match.range.first)
 
         val groups = match.groupValues
-        val start = length
         when {
-            groups[1].isNotEmpty() -> {
-                append(groups[1])
-                addStyle(
-                    SpanStyle(fontFamily = FontFamily.Monospace, background = codeBg),
-                    start,
-                    length,
-                )
-            }
-            groups[2].isNotEmpty() -> {
-                val url = groups[3]
-                withLink(
-                    LinkAnnotation.Url(
-                        url,
-                        TextLinkStyles(
-                            style = SpanStyle(
-                                color = link,
-                                textDecoration = TextDecoration.Underline,
-                            )
-                        )
-                    )
-                ) {
-                    append(groups[2])
-                }
-            }
-            groups[4].isNotEmpty() -> {
-                append(groups[4])
-                addStyle(
-                    SpanStyle(
-                        fontWeight = FontWeight.Bold,
-                        fontStyle = FontStyle.Italic,
-                    ),
-                    start,
-                    length,
-                )
-            }
-            groups[5].isNotEmpty() -> {
-                append(groups[5])
-                addStyle(
-                    SpanStyle(
-                        fontWeight = FontWeight.Bold,
-                        fontStyle = FontStyle.Italic,
-                    ),
-                    start,
-                    length,
-                )
-            }
-            groups[6].isNotEmpty() -> {
-                append(groups[6])
-                addStyle(SpanStyle(fontWeight = FontWeight.Bold), start, length)
-            }
-            groups[7].isNotEmpty() -> {
-                append(groups[7])
-                addStyle(SpanStyle(fontWeight = FontWeight.Bold), start, length)
-            }
-            groups[8].isNotEmpty() -> {
-                append(groups[8])
-                addStyle(SpanStyle(textDecoration = TextDecoration.LineThrough), start, length)
-            }
-            groups[9].isNotEmpty() -> {
-                append(groups[9])
-                addStyle(SpanStyle(background = link.copy(alpha = 0.18f)), start, length)
-            }
-            groups[10].isNotEmpty() -> {
-                append(groups[10])
-                addStyle(SpanStyle(fontStyle = FontStyle.Italic), start, length)
-            }
-            groups[11].isNotEmpty() -> {
-                append(groups[11])
-                addStyle(SpanStyle(fontStyle = FontStyle.Italic), start, length)
-            }
-            groups[12].isNotEmpty() -> {
-                val url = groups[12]
-                withLink(
-                    LinkAnnotation.Url(
-                        url,
-                        TextLinkStyles(
-                            style = SpanStyle(
-                                color = link,
-                                textDecoration = TextDecoration.Underline,
-                            )
-                        )
-                    )
-                ) {
-                    append(url)
-                }
-            }
+            groups[1].isNotEmpty() ->
+                appendStyled(groups[1], SpanStyle(fontFamily = FontFamily.Monospace, background = codeBg))
+            groups[2].isNotEmpty() -> appendLink(groups[2], groups[3], link)
+            groups[4].isNotEmpty() || groups[5].isNotEmpty() -> appendStyled(
+                groups[4].ifEmpty { groups[5] },
+                SpanStyle(fontWeight = FontWeight.Bold, fontStyle = FontStyle.Italic),
+            )
+            groups[6].isNotEmpty() || groups[7].isNotEmpty() ->
+                appendStyled(groups[6].ifEmpty { groups[7] }, SpanStyle(fontWeight = FontWeight.Bold))
+            groups[8].isNotEmpty() ->
+                appendStyled(groups[8], SpanStyle(textDecoration = TextDecoration.LineThrough))
+            groups[9].isNotEmpty() ->
+                appendStyled(groups[9], SpanStyle(background = link.copy(alpha = 0.18f)))
+            groups[10].isNotEmpty() || groups[11].isNotEmpty() ->
+                appendStyled(groups[10].ifEmpty { groups[11] }, SpanStyle(fontStyle = FontStyle.Italic))
+            groups[12].isNotEmpty() -> appendLink(groups[12], groups[12], link)
         }
         cursor = match.range.last + 1
     }
     if (cursor < text.length) append(text, cursor, text.length)
+}
+
+private fun AnnotatedString.Builder.appendStyled(text: String, style: SpanStyle) {
+    val start = length
+    append(text)
+    addStyle(style, start, length)
+}
+
+private fun AnnotatedString.Builder.appendLink(text: String, url: String, color: Color) {
+    withLink(
+        LinkAnnotation.Url(
+            url,
+            TextLinkStyles(
+                style = SpanStyle(color = color, textDecoration = TextDecoration.Underline),
+            )
+        )
+    ) {
+        append(text)
+    }
 }
 
 @Composable

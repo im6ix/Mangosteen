@@ -1,10 +1,13 @@
 package ai.opencode.mangosteen.ui.theme
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import kotlin.math.max
+import kotlin.math.min
 
 class ThemeCatalogTest {
 
@@ -30,6 +33,15 @@ class ThemeCatalogTest {
         assertEquals(mangosteen.primary, amoled.primary)
         assertEquals(mangosteen.secondary, amoled.secondary)
         assertEquals(mangosteen.tertiary, amoled.tertiary)
+    }
+
+    @Test
+    fun amoledMeetsAaContrast() {
+        val theme = ThemeCatalog.byId("amoled")
+        val scheme = theme.scheme()
+        assertTrue(contrast(scheme.onBackground, scheme.background) >= 4.5f)
+        assertTrue(contrast(scheme.onSurface, theme.surfaceLow) >= 4.5f)
+        assertTrue(contrast(scheme.onPrimary, scheme.primary) >= 4.5f)
     }
 
     @Test
@@ -78,5 +90,11 @@ class ThemeCatalogTest {
         assertEquals(ember.primaryContainer, scheme.primaryContainer)
         assertEquals(ember.background, scheme.background)
         assertNotEquals(ember.background, ember.surface)
+    }
+
+    private fun contrast(first: Color, second: Color): Float {
+        val a = first.luminance()
+        val b = second.luminance()
+        return (max(a, b) + 0.05f) / (min(a, b) + 0.05f)
     }
 }

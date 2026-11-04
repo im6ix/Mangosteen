@@ -2,6 +2,9 @@ package ai.opencode.mangosteen.ui.theme
 
 import android.app.Activity
 import android.graphics.drawable.ColorDrawable
+import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
@@ -112,74 +115,60 @@ data class MangosteenThemeSpec(
     }
 }
 
+private val DefaultTheme = MangosteenThemeSpec(
+    id = "mangosteen",
+    name = "Mangosteen",
+    tagline = "Dark · deep purple & pink",
+    isDark = true,
+    background = Color(0xFF1A1020),
+    surfaceLowest = Color(0xFF120A17),
+    surfaceLow = Color(0xFF24172C),
+    surface = Color(0xFF2C1D35),
+    surfaceHigh = Color(0xFF35243F),
+    surfaceHighest = Color(0xFF3F2C4A),
+    primary = Color(0xFFD34B84),
+    onPrimary = Color(0xFF1A0510),
+    primaryContainer = Color(0xFF6A2C91),
+    onPrimaryContainer = Color(0xFFF5EAF9),
+    secondary = Color(0xFFFFC300),
+    onSecondary = Color(0xFF3A2A00),
+    secondaryContainer = Color(0xFF5C4600),
+    onSecondaryContainer = Color(0xFFFFE7A3),
+    tertiary = Color(0xFF4ECDC4),
+    onTertiary = Color(0xFF003733),
+    textPrimary = Color(0xFFE2E2E2),
+    textSecondary = Color(0xFFC9B8D1),
+    outline = Color(0xFF9B87A5),
+    outlineVariant = Color(0xFF4E3B59),
+    error = Color(0xFFFFB4AB),
+    onError = Color(0xFF690005),
+    errorContainer = Color(0xFF93000A),
+    onErrorContainer = Color(0xFFFFDAD6),
+    codeBg = Color(0xFF35243F),
+    link = Color(0xFF4ECDC4),
+)
+
 /** Every theme shipped with the app; Mangosteen stays first/default. */
 object ThemeCatalog {
     const val DEFAULT_ID = "mangosteen"
 
     val all: List<MangosteenThemeSpec> = listOf(
-        MangosteenThemeSpec(
-            id = "mangosteen",
-            name = "Mangosteen",
-            tagline = "Dark · deep purple & pink",
-            isDark = true,
-            background = Color(0xFF1A1020),
-            surfaceLowest = Color(0xFF120A17),
-            surfaceLow = Color(0xFF24172C),
-            surface = Color(0xFF2C1D35),
-            surfaceHigh = Color(0xFF35243F),
-            surfaceHighest = Color(0xFF3F2C4A),
-            primary = Color(0xFFD34B84),
-            onPrimary = Color(0xFF1A0510),
-            primaryContainer = Color(0xFF6A2C91),
-            onPrimaryContainer = Color(0xFFF5EAF9),
-            secondary = Color(0xFFFFC300),
-            onSecondary = Color(0xFF3A2A00),
-            secondaryContainer = Color(0xFF5C4600),
-            onSecondaryContainer = Color(0xFFFFE7A3),
-            tertiary = Color(0xFF4ECDC4),
-            onTertiary = Color(0xFF003733),
-            textPrimary = Color(0xFFE2E2E2),
-            textSecondary = Color(0xFFC9B8D1),
-            outline = Color(0xFF9B87A5),
-            outlineVariant = Color(0xFF4E3B59),
-            error = Color(0xFFFFB4AB),
-            onError = Color(0xFF690005),
-            errorContainer = Color(0xFF93000A),
-            onErrorContainer = Color(0xFFFFDAD6),
-            codeBg = Color(0xFF35243F),
-            link = Color(0xFF4ECDC4),
-        ),
-        MangosteenThemeSpec(
+        DefaultTheme,
+        DefaultTheme.copy(
             id = "amoled",
             name = "AMOLED",
             tagline = "Black · true black & vivid accents",
-            isDark = true,
             background = Color(0xFF000000),
             surfaceLowest = Color(0xFF000000),
             surfaceLow = Color(0xFF050505),
             surface = Color(0xFF0A0A0A),
             surfaceHigh = Color(0xFF141414),
             surfaceHighest = Color(0xFF1E1E1E),
-            primary = Color(0xFFD34B84),
-            onPrimary = Color(0xFF1A0510),
-            primaryContainer = Color(0xFF6A2C91),
-            onPrimaryContainer = Color(0xFFF5EAF9),
-            secondary = Color(0xFFFFC300),
-            onSecondary = Color(0xFF3A2A00),
-            secondaryContainer = Color(0xFF5C4600),
-            onSecondaryContainer = Color(0xFFFFE7A3),
-            tertiary = Color(0xFF4ECDC4),
-            onTertiary = Color(0xFF003733),
             textPrimary = Color(0xFFF2F2F2),
             textSecondary = Color(0xFFBDBDBD),
             outline = Color(0xFF8A8A8A),
             outlineVariant = Color(0xFF262626),
-            error = Color(0xFFFFB4AB),
-            onError = Color(0xFF690005),
-            errorContainer = Color(0xFF93000A),
-            onErrorContainer = Color(0xFFFFDAD6),
             codeBg = Color(0xFF141414),
-            link = Color(0xFF4ECDC4),
         ),
         MangosteenThemeSpec(
             id = "ember",
@@ -468,6 +457,20 @@ private val AppShapes = Shapes(
  */
 fun applyWindowBackground(activity: Activity, theme: MangosteenThemeSpec) {
     activity.window.setBackgroundDrawable(ColorDrawable(theme.background.toArgb()))
+}
+
+/** Loads the saved theme and applies the window and system-bar colors. */
+fun ComponentActivity.applyAppTheme() {
+    ThemeStore.load(this)
+    val theme = ThemeCatalog.byId(ThemeStore.themeId)
+    applyWindowBackground(this, theme)
+    val dark = theme.isDark
+    enableEdgeToEdge(
+        statusBarStyle = if (dark) SystemBarStyle.dark(android.graphics.Color.TRANSPARENT)
+        else SystemBarStyle.light(android.graphics.Color.TRANSPARENT, android.graphics.Color.TRANSPARENT),
+        navigationBarStyle = if (dark) SystemBarStyle.dark(android.graphics.Color.TRANSPARENT)
+        else SystemBarStyle.light(android.graphics.Color.TRANSPARENT, android.graphics.Color.TRANSPARENT),
+    )
 }
 
 /**

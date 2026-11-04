@@ -314,7 +314,7 @@ class ChatViewModel(app: Application) : AndroidViewModel(app) {
                         onNotice = { notice -> ui.launch { toast = notice } },
                     ) { content, reasoning ->
                         if (reasoning.isNotEmpty()) timer.onReasoning()
-                        val frozen = if (content.isNotEmpty()) timer.onContent() else null
+                        val frozen = if (content.isNotEmpty()) timer.finish() else null
                         ui.launch {
                             if (content.isNotEmpty()) {
                                 streamingMessage.content += content

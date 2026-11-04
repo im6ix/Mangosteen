@@ -54,7 +54,6 @@ object ScheduleParser {
             value.trim()
         }
         val zone = zoneMatch?.let { timeZone(it.value) }
-        if (zoneMatch != null && zone == null) return null
         parseLocal(core, zone)?.let { return it }
         if (zoneMatch != null) return null
         // Models occasionally copy the user's relative phrasing into the block.
@@ -78,7 +77,7 @@ object ScheduleParser {
         return null
     }
 
-    private fun timeZone(suffix: String): TimeZone? {
+    private fun timeZone(suffix: String): TimeZone {
         if (suffix.equals("Z", ignoreCase = true)) return TimeZone.getTimeZone("UTC")
         val normalized = if (suffix.length == 5) {
             suffix.substring(0, 3) + ":" + suffix.substring(3)

@@ -15,7 +15,7 @@ class ReasoningTimerTest {
         now = 4_000L
         timer.onReasoning()
         now = 6_000L
-        timer.onContent()
+        timer.finish()
         now = 9_000L
 
         assertEquals(5_000L, timer.finish())
@@ -26,7 +26,7 @@ class ReasoningTimerTest {
         timer.start()
         timer.onReasoning()
         now = 2_500L
-        timer.onContent()
+        timer.finish()
         now = 5_000L
 
         assertEquals(1_500L, timer.finish())
@@ -38,7 +38,7 @@ class ReasoningTimerTest {
         timer.start()
         now = 3_500L
         timer.onReasoning()
-        timer.onContent()
+        timer.finish()
         now = 10_000L
 
         assertEquals(2_500L, timer.finish())
@@ -48,7 +48,7 @@ class ReasoningTimerTest {
     fun `a reply without reasoning has no duration`() {
         timer.start()
         now = 2_000L
-        timer.onContent()
+        timer.finish()
 
         assertNull(timer.finish())
     }

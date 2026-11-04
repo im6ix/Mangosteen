@@ -976,7 +976,7 @@ private fun ReasoningCard(message: UiMessage, live: Boolean) {
 internal fun thinkingLabel(reasoningMillis: Long?, live: Boolean): String {
     if (live) return "Thinking…"
     if (reasoningMillis == null || reasoningMillis < 1_000L) return "Thought for a moment"
-    val seconds = ((reasoningMillis + 500L) / 1_000L).coerceAtLeast(1L)
+    val seconds = (reasoningMillis + 500L) / 1_000L
     if (seconds < 60L) {
         return "Thought for $seconds second${if (seconds == 1L) "" else "s"}"
     }

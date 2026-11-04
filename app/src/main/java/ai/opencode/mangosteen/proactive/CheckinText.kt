@@ -72,27 +72,24 @@ object CheckinText {
         "ninety" to 90.0,
     )
 
-    private sealed interface Piece {
-        val start: Int
-        val end: Int
-
-        data class Offset(
-            override val start: Int,
-            override val end: Int,
+    private sealed class Piece(val start: Int, val end: Int) {
+        class Offset(
+            start: Int,
+            end: Int,
             val amount: Double,
             val unit: String,
             val chained: Boolean,
-        ) : Piece
+        ) : Piece(start, end)
 
-        data class Day(override val start: Int, override val end: Int, val word: String) : Piece
+        class Day(start: Int, end: Int, val word: String) : Piece(start, end)
 
-        data class Clock(
-            override val start: Int,
-            override val end: Int,
+        class Clock(
+            start: Int,
+            end: Int,
             val hour: Int,
             val minute: Int,
             val mer: String,
-        ) : Piece
+        ) : Piece(start, end)
     }
 
     fun parse(text: String, now: Long = System.currentTimeMillis()): Long? {
@@ -232,12 +229,13 @@ object CheckinText {
 
     private fun withinLimit(amount: Double, unit: String): Boolean {
         if (amount <= 0.0) return false
-        return when (unit.firstOrNull()?.lowercaseChar()) {
-            'h' -> amount <= MAX_HOURS
-            'd' -> amount <= MAX_DAYS
-            'w' -> amount <= MAX_WEEKS
-            else -> amount <= MAX_MINUTES
+        val max = when (unit.firstOrNull()?.lowercaseChar()) {
+            'h' -> MAX_DAYS * 24.0
+            'd' -> MAX_DAYS
+            'w' -> MAX_DAYS / 7.0
+            else -> MAX_DAYS * 24.0 * 60.0
         }
+        return amount <= max
     }
 
     /** Applies an offset to [base], using calendar days and weeks so DST keeps wall time. */
@@ -314,7 +312,4 @@ object CheckinText {
 
     private const val DAY_MS = 24 * 3_600_000L
     private const val MAX_DAYS = 3_650.0
-    private const val MAX_WEEKS = MAX_DAYS / 7.0
-    private const val MAX_HOURS = MAX_DAYS * 24.0
-    private const val MAX_MINUTES = MAX_HOURS * 60.0
 }
