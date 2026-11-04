@@ -10,6 +10,10 @@ Mangosteen keeps the conversation in front of you: streaming replies, visible re
   <img alt="Jetpack Compose" src="https://img.shields.io/badge/Jetpack%20Compose-Material%203-1A1020?style=flat-square&logo=jetpackcompose&logoColor=4ECDC4">
 </p>
 
+## Install
+
+Download the latest signed APK from [Releases](https://github.com/im6ix/Mangosteen/releases/latest). Requires Android 7.0+ and an OpenCode Go API key.
+
 ## Features
 
 - **Streaming chat** — responses appear as they are generated, with a stop button that actually aborts the request.
@@ -76,7 +80,11 @@ keyAlias=...
 keyPassword=...
 ```
 
-Then run `./gradlew :app:assembleRelease`.
+Then run `./gradlew :app:assembleRelease`. The signed APK is written to:
+
+```text
+app/build/outputs/apk/release/app-release.apk
+```
 
 ## First run
 
@@ -129,8 +137,8 @@ The app intentionally uses `HttpURLConnection` and Android's platform JSON parse
 
 ## Status
 
-Mangosteen 2.0. The UI is being rebuilt around the Dark Mangosteen Material 3 Expressive design. The chat, model, settings, and check-in flows are functional; the app is a personal client, not an official OpenCode product.
+Mangosteen 2.2. This release includes the check-in, markdown, reasoning-timer, AMOLED contrast, and manual check-in fixes from the 2.1 review. The chat, model, settings, and check-in flows are functional; the app is a personal client, not an official OpenCode product.
 
 ## License
 
-No license has been added yet. All rights reserved unless a license is added later.
+MIT. See [LICENSE](LICENSE).
